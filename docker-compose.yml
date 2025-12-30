@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   roscore:
     image: franka_ros:latest
@@ -10,33 +8,117 @@ services:
     tty: true # docker run -t
     command: roscore
 
-  cartesian_impedance_control:
+  # main:
+  #   image: franka_ros:latest
+  #   build: .docker
+  #   environment:
+  #     - DISPLAY=${DISPLAY}
+  #     - QT_X11_NO_MITSHM=1         # 禁用Qt的MIT-SHM
+  #   volumes:
+  #     - /tmp/.X11-unix:/tmp/.X11-unix
+  #     - ./franka_example_controllers/:/catkin_ws/src/franka_ros/franka_example_controllers
+  #   network_mode: host
+  #   privileged: true
+  #   #entrypoint: /bin/bash
+  #   stdin_open: true # docker run -i
+  #   tty: true # docker run -t
+  #   depends_on:
+  #     - roscore
+  #   command: /bin/bash -c 'cd /catkin_ws/ && catkin_make && . /catkin_ws/devel/setup.bash &&  exec bash'
+  
+  libfranka:
     image: franka_ros:latest
     build: .docker
     environment:
       - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1         # 禁用Qt的MIT-SHM
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./examples/:/libfranka/examples
     network_mode: host
     privileged: true
+    #entrypoint: /bin/bash
     stdin_open: true # docker run -i
     tty: true # docker run -t
-    depends_on:
-      - roscore
-    command: /bin/bash -c '. /catkin_ws/devel/setup.bash && roslaunch --wait franka_example_controllers cartesian_impedance_example_controller_no_marker.launch robot:=fr3 robot_ip:=172.16.0.2 load_gripper:=True'
+    command: bash -c "cd ../libfranka/build && exec bash" #&& cmake --build . &&
 
-  main:
+  franka_control:
     image: franka_ros:latest
     build: .docker
     environment:
       - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1         # 禁用Qt的MIT-SHM
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - ./realm:/catkin_ws/src/realm
+      - ./franka_example_controllers/:/catkin_ws/src/franka_ros/franka_example_controllers
     network_mode: host
     privileged: true
+    #entrypoint: /bin/bash
     stdin_open: true # docker run -i
     tty: true # docker run -t
     depends_on:
       - roscore
-    command: bash
+    command: /bin/bash -c 'cd /catkin_ws/ && catkin_make && . /catkin_ws/devel/setup.bash && roslaunch --wait franka_example_controllers hybrid_force_position_controller.launch && exec bash'
+    #
+    #/bin/bash -c 'cd /catkin_ws/ && catkin_make && . /catkin_ws/devel/setup.bash &&  exec bash'
+
+  # show:
+  #   image: franka_ros:latest
+  #   build: .docker
+  #   environment:
+  #     - DISPLAY=${DISPLAY}
+  #     - QT_X11_NO_MITSHM=1         # 禁用Qt的MIT-SHM
+  #   volumes:
+  #     - /tmp/.X11-unix:/tmp/.X11-unix
+  #     - ./franka_example_controllers/:/catkin_ws/src/franka_ros/franka_example_controllers
+  #   network_mode: host
+  #   privileged: true
+  #   #entrypoint: /bin/bash
+  #   stdin_open: true # docker run -i
+  #   tty: true # docker run -t
+  #   depends_on:
+  #     - roscore
+  #   command: /bin/bash -c 'cd /catkin_ws/ && catkin_make && . /catkin_ws/devel/setup.bash && exec bash'
+
+
+
+
+
+
+
+
+
+
+  # serl_franka_controllers:
+  #   image: franka_ros:latest
+  #   build: .docker
+  #   environment:
+  #     - DISPLAY=${DISPLAY}
+  #     - QT_X11_NO_MITSHM=1         # 禁用Qt的MIT-SHM
+  #   volumes:
+  #     - /tmp/.X11-unix:/tmp/.X11-unix
+  #   network_mode: host
+  #   privileged: true
+  #   stdin_open: true # docker run -i
+  #   tty: true # docker run -t
+  #   depends_on:
+  #     - roscore
+  #   command: /bin/bash -c '. /catkin_ws/devel/setup.bash && roslaunch  --wait serl_franka_controllers impedance.launch robot_ip:=172.31.0.200 load_gripper:=true'
+
+
+
+  # cartesian_impedance_control:
+  #   image: franka_ros:latest
+  #   build: .docker
+  #   environment:
+  #     - DISPLAY=${DISPLAY}
+  #     - QT_X11_NO_MITSHM=1         # 禁用Qt的MIT-SHM
+  #   volumes:
+  #     - /tmp/.X11-unix:/tmp/.X11-unix
+  #   network_mode: host
+  #   privileged: true
+  #   stdin_open: true # docker run -i
+  #   tty: true # docker run -t
+  #   depends_on:
+  #     - roscore
+  #   command: /bin/bash -c '. /catkin_ws/devel/setup.bash && roslaunch --wait franka_example_controllers cartesian_impedance_example_controller_no_marker.launch robot:=fr3 robot_ip:=172.31.0.200 load_gripper:=True rviz:=False' # 启动cartesian_impedance_example_controller_no_marker.launch

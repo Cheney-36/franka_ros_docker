@@ -21,7 +21,7 @@ Now you should have access to the full Franka ROS interface documented [`here`](
 
 For example, you can test the connection to the robot as follows:
 
-1. Go to the [Desk webapp](https://172.16.0.2/desk/) and login.
+1. Go to the [Desk webapp](https://172.31.0.200/desk/) and login.
 2. Unlock the robot using the sidebar on the right of the screen.
 3. Open the drop-down in the top right by clicking on the IP address, then click "Activate FCI" to enable the Franka Control Interface.
 4. Run the docker container using `docker compose run main`
